@@ -24,8 +24,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/textView"
-                    android:text="sdas dasfad fgaudfh aldusfh adhfgb afdhgb afdhgb akfdhjgb afdkjhg badfkjgh bafdga bfgk abfdgkl sdas dasfad fgaudfh aldusfh adhfgb afdhgb afdhgb akfdhjgb afdkjhg badfkjgh bafdga bfgk abfdgkl sdas dasfad fgaudfh aldusfh adhfgb afdhgb afdhgb akfdhjgb afdkjhg badfkjgh bafdga bfgk abfdgkl " />
+                    android:id="@+id/textView" />
             </LinearLayout>
 
             <LinearLayout
@@ -47,78 +46,68 @@
             </LinearLayout>
 
         </LinearLayout>
-    <ScrollView
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
+        android:id="@+id/linearLayout2"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true">
-
-
+        android:layout_alignParentRight="true">
 
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:id="@+id/linearLayout2">
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"></LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="5">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"></LinearLayout>
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="5">
-
-                <LinearLayout
-                    android:orientation="vertical"
+                <Button
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:text="Dodaj stację"
+                    android:id="@+id/buttonNewStation"
+                    android:layout_gravity="center_horizontal" />
 
-                    <Button
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Dodaj stację"
-                        android:id="@+id/button"
-                        android:layout_gravity="center_horizontal" />
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Najbliższe stacje"
+                    android:id="@+id/buttonClosest"
+                    android:layout_gravity="center_horizontal" />
 
-                    <Button
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Najbliższe stacje"
-                        android:id="@+id/button2"
-                        android:layout_gravity="center_horizontal" />
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Wszystkie stacje"
+                    android:id="@+id/buttonAllStations"
+                    android:layout_gravity="center_horizontal" />
 
-                    <Button
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Wszystkie stacje"
-                        android:id="@+id/button3"
-                        android:layout_gravity="center_horizontal" />
-
-                    <Button
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Mapa stacji"
-                        android:id="@+id/button4"
-                        android:layout_gravity="center_horizontal" />
-                </LinearLayout>
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mapa stacji"
+                    android:id="@+id/buttonMap"
+                    android:layout_gravity="center_horizontal" />
             </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"></LinearLayout>
         </LinearLayout>
-    </ScrollView>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"></LinearLayout>
+    </LinearLayout>
 
 
 </RelativeLayout>
