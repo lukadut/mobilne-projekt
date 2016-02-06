@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     TextView tv;
     ImageButton gpsRefresh;
-    GPSAdapter gpsAdapter;
+    static GPSAdapter gpsAdapter;
     Button addNewStation, closestStation, allStations, stationsMap;
 
 
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = intentFactory(NewStation.class);
+//                i.putExtra("id",0);
                 startActivity(i);
             }
         });
