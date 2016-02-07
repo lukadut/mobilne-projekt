@@ -35,7 +35,7 @@ public class GasStation {
             "["+LONGITUDE+"] fLOAT  NOT NULL\n" +
             ")";
 
-    static public ContentValues insert(String name, GPSLocation gpsLocation){
+    static public ContentValues createContext(String name, GPSLocation gpsLocation){
         ContentValues newValues = new ContentValues();
         newValues.put(NAME,name);
         newValues.put(CITY,gpsLocation.getCity());
@@ -46,4 +46,5 @@ public class GasStation {
     }
 
     static public String[] GASSTATION_COLUMNS = new String[]{ID,NAME,CITY,ADDRESS,LATITUDE,LONGITUDE};
+
 }

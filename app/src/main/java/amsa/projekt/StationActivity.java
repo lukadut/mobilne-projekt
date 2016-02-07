@@ -1,26 +1,26 @@
 package amsa.projekt;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.Debug;
+import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import amsa.projekt.Utils.ActivityUtils;
 import amsa.projekt.Utils.InputFilterMinMax;
 import amsa.projekt.DataBase.GasStation;
 
-public class NewStation extends AppCompatActivity {
+public class StationActivity extends AppCompatActivity {
 
     private Button buttonAdd, buttonEdit, buttonDelete, buttonGetPosition, buttonGetAddress, buttonNS, buttonEW;
     private EditText editTextStationName,editTextCity,editTextAddress,editTextLat,editTextLon;
     private GPSLocation gpsLocation;
+    private amsa.projekt.GasStation gasStation;
     private DataBaseAdapter db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,15 +40,54 @@ public class NewStation extends AppCompatActivity {
                 try {
                     setLocationCoordinates();
                     setLocationAddress();
-                    gpsLocation.debug();
                     db = new DataBaseAdapter(getApplicationContext());
                     db.open();
-                    long insertID = db.insert(GasStation.DB_GASSTATION_TABLE,GasStation.insert(editTextStationName.getText().toString(),gpsLocation));
+                    long insertID = db.insert(GasStation.DB_GASSTATION_TABLE,GasStation.createContext(editTextStationName.getText().toString(),gpsLocation));
                     Toast.makeText(getApplicationContext(), "Dodano nową stację " + insertID, Toast.LENGTH_LONG).show();
                     db.close();
+                    finish();
+                    Intent i = new Intent(StationActivity.this,StationActivity.class);
+                    i.putExtra("id",insertID);
+                    startActivity(i);
                 } catch (Exception e){
-                    alertDialog(e);
+                    ActivityUtils.alertDialog(getApplicationContext(),e);
                 }
+            }
+        });
+
+        buttonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    setLocationCoordinates();
+                    setLocationAddress();
+                    db = new DataBaseAdapter(getApplicationContext());
+                    db.open();
+                    if(db.update(GasStation.DB_GASSTATION_TABLE, GasStation.createContext(editTextStationName.getText().toString(), gpsLocation),"id = " + gasStation.getId())) {
+                        Toast.makeText(getApplicationContext(), "Zedytowano wpis", Toast.LENGTH_LONG).show();
+                    }
+                    db.close();
+                } catch (Exception e){
+                    ActivityUtils.alertDialog(getApplicationContext(),e);
+                }
+            }
+        });
+
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityUtils.confirmDialog(StationActivity.this, "Usuń", "Na pewno chcesz usunąć?", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        db = new DataBaseAdapter(getApplicationContext());
+                        db.open();
+                        if (db.delete(GasStation.DB_GASSTATION_TABLE,"id = " + gasStation.getId())){
+                            Toast.makeText(getApplicationContext(), "Usunięto stację", Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                        db.close();
+                    }
+                });
             }
         });
 
@@ -61,7 +100,11 @@ public class NewStation extends AppCompatActivity {
         buttonGetPosition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gpsLocation = getGPSLocation();
+                try {
+                    gpsLocation = getGPSLocation(MainActivity.gpsAdapter.getGPSLocation());
+                } catch (Exception e) {
+                    ActivityUtils.alertDialog(getApplicationContext(), e);
+                }
             }
         });
         buttonNS.setOnClickListener(new View.OnClickListener() {
@@ -95,6 +138,18 @@ public class NewStation extends AppCompatActivity {
             buttonAdd.setVisibility(View.GONE);
             buttonEdit.setVisibility(View.VISIBLE);
             buttonDelete.setVisibility(View.VISIBLE);
+            db = new DataBaseAdapter(getApplicationContext());
+            db.open();
+            try{
+                gasStation= getGasStation(getIntent().getLongExtra("id", -1));
+                getGPSLocation(gasStation.getGPSLocation());
+                editTextStationName.setText(gasStation.getName());
+
+            } catch (Exception e){
+                ActivityUtils.alertDialog(this,e);
+            } finally {
+                db.close();
+            }
         }
         else{
             buttonAdd.setVisibility(View.VISIBLE);
@@ -112,7 +167,7 @@ public class NewStation extends AppCompatActivity {
             editTextCity.setText(gpsLocation.getCity());
             editTextAddress.setText(gpsLocation.getAddress());
         } catch (Exception e){
-            alertDialog(e);
+            ActivityUtils.alertDialog(StationActivity.this,e);
         }
     }
 
@@ -127,7 +182,6 @@ public class NewStation extends AppCompatActivity {
         }
         double longitude = Double.parseDouble(editTextLon.getText().toString()) * (buttonEW.getText().toString().equals("E") ? 1 : -1);
         double latitude = Double.parseDouble(editTextLat.getText().toString()) * (buttonNS.getText().toString().equals("N") ? 1 : -1);
-        Log.d("GPSLOCATION", "is null + " + (gpsLocation==null));
         gpsLocation.setLon(longitude);
         gpsLocation.setLat(latitude) ;
         gpsLocation.setNs(buttonNS.getText().toString());
@@ -136,9 +190,8 @@ public class NewStation extends AppCompatActivity {
     }
 
 
-    private GPSLocation getGPSLocation(){
+    private GPSLocation getGPSLocation(GPSLocation location){
         try {
-            GPSLocation location =  MainActivity.gpsAdapter.getGPSLocation();
             editTextCity.setText(location.getCity());
             editTextAddress.setText(location.getAddress());
             editTextLat.setText(location.getUnsignedLatitude());
@@ -147,22 +200,26 @@ public class NewStation extends AppCompatActivity {
             buttonEW.setText(location.getEw());
             return location;
         } catch (Exception e) {
-            alertDialog(e);
+            ActivityUtils.alertDialog(getApplicationContext(),e);
             return new GPSLocation();
         }
     }
 
-    private void alertDialog(Exception e){
-        AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
-        dlgAlert.setMessage(e.getMessage());
-        dlgAlert.setTitle("Błąd");
-        dlgAlert.setPositiveButton("Ok",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        //dismiss the dialog
-                    }
-                });
-        dlgAlert.setCancelable(true);
-        dlgAlert.create().show();
+    private amsa.projekt.GasStation getGasStation(long id) throws Exception{
+        if(id == -1) {
+            finish();
+            throw new Exception("Błędne id wpisu");
+        }
+        Cursor c = db.select(GasStation.DB_GASSTATION_TABLE,GasStation.GASSTATION_COLUMNS,"id = " + id);
+        amsa.projekt.GasStation gs = new amsa.projekt.GasStation();
+        if(c.moveToFirst()){
+            gs.setId(id);
+            gs.setName(c.getString(GasStation.NAME_COLUMN));
+            gs.setCity(c.getString(GasStation.CITY_COLUMN));
+            gs.setAddress(c.getString(GasStation.ADDRESS_COLUMN));
+            gs.setLongitude(c.getDouble(GasStation.LONGITUDE_COLUMN));
+            gs.setLatitude(c.getDouble(GasStation.LATITUDE_COLUMN));
+        }
+        return gs;
     }
 }

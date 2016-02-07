@@ -19,25 +19,20 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="108dp"
+        android:layout_height="64dp"
         android:layout_gravity="bottom|center_horizontal">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="64dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Id:"
-                android:id="@+id/textView" />
+                android:id="@+id/textViewSelectedStation" />
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/editText" />
         </LinearLayout>
     </LinearLayout>
 
@@ -56,24 +51,16 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add"
-                android:id="@+id/add"
+                android:text="Stacja"
+                android:id="@+id/buttonStation"
                 android:layout_gravity="bottom"
                 android:layout_weight="1" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit"
-                android:id="@+id/edit"
-                android:layout_gravity="bottom"
-                android:layout_weight="1" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete"
-                android:id="@+id/delete"
+                android:text="Paliwa"
+                android:id="@+id/buttonFuel"
                 android:layout_gravity="bottom"
                 android:layout_weight="1" />
 

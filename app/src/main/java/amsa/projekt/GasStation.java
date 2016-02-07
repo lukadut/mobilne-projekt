@@ -38,6 +38,19 @@ public class GasStation implements Comparable<GasStation> {
         this.longitude = longitude;
     }
 
+    public GPSLocation getGPSLocation(){
+        GPSLocation gpsLocation = new GPSLocation();
+        gpsLocation.setAddress(address);
+        gpsLocation.setCity(city);
+        gpsLocation.setLon(longitude);
+        gpsLocation.setLat(latitude);
+        gpsLocation.setUnsignedLatitude(latitude >= 0 ? latitude + "" : (-1 * latitude) + "");
+        gpsLocation.setUnsignedLongitude(longitude>=0?longitude+"": (-1*longitude)+"");
+        gpsLocation.setEw(longitude>=0?"E":"W");
+        gpsLocation.setNs(latitude>=0?"N":"S");
+        return gpsLocation;
+    }
+
     @Override
     public int compareTo(GasStation another) {
         if(this.distanceTo == null && another.distanceTo==null) {

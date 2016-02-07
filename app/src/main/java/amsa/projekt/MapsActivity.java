@@ -1,6 +1,7 @@
 package amsa.projekt;
 
 import android.database.Cursor;
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,6 +67,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         for(MarkerOptions markerOptions:stations){
             mMap.addMarker(markerOptions);
+        }
+
+        Location lastLocation = MainActivity.gpsAdapter.getLastKnownLocation();
+        if(lastLocation != null){
+            LatLng lastPosition = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(lastPosition));
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
         }
 
 

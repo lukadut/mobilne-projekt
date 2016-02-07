@@ -1,26 +1,16 @@
 package amsa.projekt;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
+import amsa.projekt.Utils.ActivityUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                     gpsAdapter.requestLocationUpdate();
-                setText(gpsAdapter.getLocationInfo());
+                tv.setText(gpsAdapter.getLocationInfo());
             }
         });
 
@@ -53,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         addNewStation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = intentFactory(NewStation.class);
+                Intent i = intentFactory(StationActivity.class);
 //                i.putExtra("id",0);
                 startActivity(i);
             }
@@ -63,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         allStations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = intentFactory(ListActivity.class);
+                Intent i = intentFactory(StationListActivity.class);
                 startActivity(i);
             }
         });
@@ -73,13 +63,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    Location location = getLastKnownLocation();
-                    Intent i = intentFactory(ListActivity.class);
+                    Location location = gpsAdapter.getLastKnownLocation();
+                    if(location == null){
+                        throw new Exception("GPS wyłączony, nie można ustalić lokalizacji");
+                    }
+                    Intent i = intentFactory(StationListActivity.class);
                     i.putExtra("lat", location.getLatitude());
                     i.putExtra("lon", location.getLongitude());
                     startActivity(i);
                 } catch (Exception e){
-                    alertDialog(e);
+                    ActivityUtils.alertDialog(getApplicationContext(),e);
                 }
             }
         });
@@ -94,45 +87,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void setText(String t){
-        tv.setText(t);
-    }
-
-    public Location getLastKnownLocation() throws Exception{
-        Location lastKnownLocation_byGps = gpsAdapter.getLastKnownLocation();
-
-        if (lastKnownLocation_byGps == null) {
-            throw new Exception("GPS wyłączony, nie można ustalić lokalizacji");
-        }
-        return lastKnownLocation_byGps;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        setText(gpsAdapter.getLocationInfo());
-//        Intent i = new Intent(MainActivity.this, MapsActivity.class);
-//        startActivity(i);
+        tv.setText(gpsAdapter.getLocationInfo());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-
-    private void alertDialog(Exception e){
-        AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
-        dlgAlert.setMessage(e.getMessage());
-        dlgAlert.setTitle("Błąd");
-        dlgAlert.setPositiveButton("Ok",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        //dismiss the dialog
-                    }
-                });
-        dlgAlert.setCancelable(true);
-        dlgAlert.create().show();
     }
 
     private Intent intentFactory(Class clz){

@@ -9,21 +9,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class ListActivity extends AppCompatActivity {
+import amsa.projekt.DataBase.*;
+import amsa.projekt.DataBase.Fuel;
+
+public class StationListActivity extends AppCompatActivity {
 
     private DataBaseAdapter db;
     private ArrayList<GasStation> stations;
+    private GasStation selectedStation;
     private ListView listView;
     private Location lastKnownLocation;
     private Boolean sortByDistance = false;
+    private Button stationInfo, fuels;
+    private TextView stationID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +42,32 @@ public class ListActivity extends AppCompatActivity {
             lastKnownLocation.setLatitude(i.getDoubleExtra("lat", 0));
             lastKnownLocation.setLongitude(i.getDoubleExtra("lon", 0));
         }
-        listView = (ListView)findViewById(R.id.listView);
+        listView    = (ListView)findViewById(R.id.listView);
+        stationInfo = (Button)findViewById(R.id.buttonStation);
+        fuels       = (Button)findViewById(R.id.buttonFuel);
+        stationID   = (TextView)findViewById(R.id.textViewSelectedStation);
+
+        stationInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedStation!=null) {
+                    Intent i = new Intent(StationListActivity.this, StationActivity.class);
+                    i.putExtra("id", selectedStation.getId());
+                    startActivity(i);
+                }
+            }
+        });
+
+        fuels.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedStation!=null) {
+                    Intent i = new Intent(StationListActivity.this, FuelListActivity.class);
+                    i.putExtra("id", selectedStation.getId());
+                    startActivity(i);
+                }
+            }
+        });
 
         db = new DataBaseAdapter(this);
         db.open();
@@ -64,10 +96,8 @@ public class ListActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Text text = texts.get(position);
-//                textEdit.setText(text.getText());
-//                textId.setText("Id: " + text.getId());
-                Log.d("test", "test pos" + position + " id" + id);
+                selectedStation = stations.get(position);
+                stationID.setText("Id: " + selectedStation.getId() + " " + selectedStation.getName());
             }
         });
         getStationsList();

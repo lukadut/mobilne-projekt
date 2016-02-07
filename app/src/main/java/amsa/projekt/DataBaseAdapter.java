@@ -53,6 +53,38 @@ public class DataBaseAdapter {
         return cursor;
     }
 
+    public Cursor select(String table, String[] columns, String where){
+        Cursor cursor = db.query(table, columns,where,null,null,null,null);
+        return cursor;
+    }
+
+    public Cursor rawQuery(String query){
+        try {
+            return db.rawQuery(query, null);
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void query(String query){
+        try{
+            db.execSQL(query);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public boolean update(String table,ContentValues contentValues,String where){
+        return db.update(table,contentValues,where,null) > 0;
+    }
+
+    public boolean delete(String table, String where){
+        return db.delete(table,where,null)>0;
+    }
+
+
+
     private static class DatabaseHelper extends SQLiteOpenHelper {
         public DatabaseHelper(Context context, String name,
                               SQLiteDatabase.CursorFactory factory, int version) {
