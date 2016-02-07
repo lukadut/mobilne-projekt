@@ -2,6 +2,7 @@ package amsa.projekt;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Debug;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -10,14 +11,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import amsa.projekt.Utils.InputFilterMinMax;
+import amsa.projekt.DataBase.GasStation;
 
 public class NewStation extends AppCompatActivity {
 
     private Button buttonAdd, buttonEdit, buttonDelete, buttonGetPosition, buttonGetAddress, buttonNS, buttonEW;
     private EditText editTextStationName,editTextCity,editTextAddress,editTextLat,editTextLon;
     private GPSLocation gpsLocation;
+    private DataBaseAdapter db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,10 +34,28 @@ public class NewStation extends AppCompatActivity {
         buttonNS            = (Button)findViewById(R.id.buttonNS);
         buttonEW            = (Button)findViewById(R.id.buttonEW);
 
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    setLocationCoordinates();
+                    setLocationAddress();
+                    gpsLocation.debug();
+                    db = new DataBaseAdapter(getApplicationContext());
+                    db.open();
+                    long insertID = db.insert(GasStation.DB_GASSTATION_TABLE,GasStation.insert(editTextStationName.getText().toString(),gpsLocation));
+                    Toast.makeText(getApplicationContext(), "Dodano nową stację " + insertID, Toast.LENGTH_LONG).show();
+                    db.close();
+                } catch (Exception e){
+                    alertDialog(e);
+                }
+            }
+        });
+
         buttonGetAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getAddress();
+                getGPSAddress();
             }
         });
         buttonGetPosition.setOnClickListener(new View.OnClickListener() {
@@ -81,30 +103,38 @@ public class NewStation extends AppCompatActivity {
         }
     }
 
-    private void getAddress(){
-        if(editTextLon.getText().toString().equals("") || editTextLat.getText().toString().equals("")){
-            try {
-                throw new Exception("Współrzędne geograficzne nie mogą być puste");
-            } catch (Exception e){
-                alertDialog(e);
+    private void getGPSAddress(){
+        try {
+            setLocationCoordinates();
+            if(gpsLocation.getCity() == null){
+                throw new Exception("Nie udało się odnaleźć lokalizacji");
             }
-            return;
+            editTextCity.setText(gpsLocation.getCity());
+            editTextAddress.setText(gpsLocation.getAddress());
+        } catch (Exception e){
+            alertDialog(e);
+        }
+    }
+
+    private void setLocationAddress(){
+        gpsLocation.setCity(editTextCity.getText().toString());
+        gpsLocation.setAddress(editTextAddress.getText().toString());
+    }
+
+    private void setLocationCoordinates() throws Exception{
+        if(editTextLon.getText().toString().equals("") || editTextLat.getText().toString().equals("")){
+            throw new Exception("Współrzędne geograficzne nie mogą być puste");
         }
         double longitude = Double.parseDouble(editTextLon.getText().toString()) * (buttonEW.getText().toString().equals("E") ? 1 : -1);
         double latitude = Double.parseDouble(editTextLat.getText().toString()) * (buttonNS.getText().toString().equals("N") ? 1 : -1);
+        Log.d("GPSLOCATION", "is null + " + (gpsLocation==null));
         gpsLocation.setLon(longitude);
         gpsLocation.setLat(latitude) ;
         gpsLocation.setNs(buttonNS.getText().toString());
         gpsLocation.setEw(buttonEW.getText().toString());
         gpsLocation = MainActivity.gpsAdapter.getGPSLocation(latitude,longitude);
-
-        editTextCity.setText(gpsLocation.getCity());
-        editTextAddress.setText(gpsLocation.getAddress());
-
-
-//        gpsLocation.set
-
     }
+
 
     private GPSLocation getGPSLocation(){
         try {
@@ -117,9 +147,9 @@ public class NewStation extends AppCompatActivity {
             buttonEW.setText(location.getEw());
             return location;
         } catch (Exception e) {
-           alertDialog(e);
+            alertDialog(e);
+            return new GPSLocation();
         }
-        return null;    //nieosiągalny stan, ale bez tego się nie kompiluje
     }
 
     private void alertDialog(Exception e){

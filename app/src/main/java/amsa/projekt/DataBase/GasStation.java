@@ -1,5 +1,9 @@
 package amsa.projekt.DataBase;
 
+import android.content.ContentValues;
+
+import amsa.projekt.GPSLocation;
+
 /**
  * Created by Łukasz on 2016-01-31.
  */
@@ -30,4 +34,16 @@ public class GasStation {
             "["+LATITUDE+"] FLOAT  NOT NULL,\n" +
             "["+LONGITUDE+"] fLOAT  NOT NULL\n" +
             ")";
+
+    static public ContentValues insert(String name, GPSLocation gpsLocation){
+        ContentValues newValues = new ContentValues();
+        newValues.put(NAME,name);
+        newValues.put(CITY,gpsLocation.getCity());
+        newValues.put(ADDRESS,gpsLocation.getAddress());
+        newValues.put(LATITUDE, gpsLocation.getLat());
+        newValues.put(LONGITUDE, gpsLocation.getLon());
+        return newValues;
+    }
+
+    static public String[] GASSTATION_COLUMNS = new String[]{ID,NAME,CITY,ADDRESS,LATITUDE,LONGITUDE};
 }

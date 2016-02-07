@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import amsa.projekt.Utils.ConnectionChecker;
+
 /**
  * Created by Łukasz on 2016-01-31.
  */
@@ -97,6 +99,9 @@ public class GPSAdapter {
         }
 
         try {
+            if(ConnectionChecker.check(context)==false){
+                throw new Exception("Brak połączenia z internetem");
+            }
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if(addresses.size()>0) {
                 Address address = addresses.get(0);
@@ -104,8 +109,7 @@ public class GPSAdapter {
                 GPSL.setAddress(address.getThoroughfare() + (address.getThoroughfare().equals(address.getFeatureName())? "" : ", " + address.getFeatureName()));
             }
         } catch (Exception e) {
-
-            e.printStackTrace();
+            throw e;
         }
         finally {
             GPSL.debug();
@@ -128,8 +132,14 @@ public class GPSAdapter {
 
 
     public void requestLocationUpdate() {
-        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5*60*1000, 10, locListener);
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5 * 60 * 1000, 10, locListener);
 
+    }
+
+    static public double distanceBetweenPoints(Location start, Location end){
+        double distance = start.distanceTo(end);
+        Log.d("distance" , "distance " + distance);
+        return distance;
     }
 
     @Nullable

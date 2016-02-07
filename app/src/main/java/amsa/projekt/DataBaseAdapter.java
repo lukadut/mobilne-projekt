@@ -1,6 +1,8 @@
 package amsa.projekt;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -40,6 +42,15 @@ public class DataBaseAdapter {
         catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public long insert(String table,ContentValues contentValues){
+        return db.insert(table,null,contentValues);
+    }
+
+    public Cursor select(String table, String[] columns){
+        Cursor cursor = db.query(table, columns,null,null,null,null,null);
+        return cursor;
     }
 
     private static class DatabaseHelper extends SQLiteOpenHelper {

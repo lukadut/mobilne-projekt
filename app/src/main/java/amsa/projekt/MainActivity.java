@@ -63,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
         allStations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent i = intentFactory(ListActivity.class);
+                startActivity(i);
             }
         });
 
@@ -71,7 +72,15 @@ public class MainActivity extends AppCompatActivity {
         closestStation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getLastKnownLocation();
+                try {
+                    Location location = getLastKnownLocation();
+                    Intent i = intentFactory(ListActivity.class);
+                    i.putExtra("lat", location.getLatitude());
+                    i.putExtra("lon", location.getLongitude());
+                    startActivity(i);
+                } catch (Exception e){
+                    alertDialog(e);
+                }
             }
         });
 
@@ -79,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
         stationsMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent i = intentFactory(MapsActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -88,23 +98,11 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(t);
     }
 
-    public Location getLastKnownLocation() {
+    public Location getLastKnownLocation() throws Exception{
         Location lastKnownLocation_byGps = gpsAdapter.getLastKnownLocation();
 
         if (lastKnownLocation_byGps == null) {
-            setText("GPS nie dostępny");
-            AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
-            dlgAlert.setMessage("GPS wyłączony, nie można ustalić lokalizacji");
-            dlgAlert.setTitle("Usługa GPS");
-            dlgAlert.setPositiveButton("Ok",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            //dismiss the dialog
-                        }
-                    });
-            dlgAlert.setCancelable(true);
-            dlgAlert.create().show();
-            return null;
+            throw new Exception("GPS wyłączony, nie można ustalić lokalizacji");
         }
         return lastKnownLocation_byGps;
     }
@@ -120,6 +118,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+
+    private void alertDialog(Exception e){
+        AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
+        dlgAlert.setMessage(e.getMessage());
+        dlgAlert.setTitle("Błąd");
+        dlgAlert.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dismiss the dialog
+                    }
+                });
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
     }
 
     private Intent intentFactory(Class clz){
